@@ -10,9 +10,10 @@
 ---
 
 ## 🌟 Why BlueMouse? (為什麼你需要它？)
-**[EN]** In the era of **Vibe Coding**, AI generates code faster than we can read. But even the best AI (Claude 3.5 Sonnet) hallucinates. **BlueMouse is your Airbag.** It is not another coding tool; it is a **Quality Gate** that stops bad code before it happens.
 
-**[TW]** 在 **Vibe Coding** 盛行的時代，AI 產生代碼的速度比我們閱讀的速度還快。但即使是最強的 AI (Claude 3.5 Sonnet) 也會出現邏輯幻覺。**BlueMouse 是您的安全氣囊 (Airbag)。** 它不是另一個寫代碼的工具，它是**「阻止爛代碼發生」**的守門員。
+**[EN]** In the era of **Vibe Coding**, AI generates code faster than we can read. But even the best AI (Claude 3.5 / 4.5) hallucinates. **BlueMouse is your Airbag.** It is not another coding tool; it is a **Quality Gate** that stops bad code before it happens.
+
+**[TW]** 在 **Vibe Coding** 盛行的時代，AI 產生代碼的速度比我們閱讀的速度還快。但即使是最強的 AI (Claude 3.5 / 4.5) 也會出現邏輯幻覺。**BlueMouse 是您的安全氣囊 (Airbag)。** 它不是另一個寫代碼的工具，它是**「阻止爛代碼發生」**的守門員。
 
 ### 🔥 Core Features (核心強項)
 *   **🧠 Socratic Logic Gate (蘇格拉底門禁)**
