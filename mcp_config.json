@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "blueprint-little-mouse": {
+            "command": "/Users/peijunchen0410/Desktop/bluemouse_v6_release_final/venv/bin/python",
+            "args": [
+                "/Users/peijunchen0410/Desktop/bluemouse_v6_release_final/server.py"
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        }
+    }
+}
