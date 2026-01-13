@@ -4,7 +4,8 @@
 
 [![Status](https://img.shields.io/badge/Status-Global%20Mastery-blue?style=for-the-badge)](STATUS_REPORT_v6.0.md)
 [![License](https://img.shields.io/badge/License-AGPLv3-red?style=for-the-badge)](LICENSE)
-[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Local-green?style=for-the-badge)](FOUNDER_FAQ.md)
+
+[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Local-green?style=for-the-badge)](LICENSE)
 [![Compatible](https://img.shields.io/badge/Works%20With-Cursor%20%7C%20Claude-purple?style=for-the-badge)](CURSOR_GUIDE.md)
 
 ---
@@ -73,7 +74,8 @@ python server.py
 **[EN]** BlueMouse is open-source under **AGPLv3**. This means any corporation using this code *must* contribute back to the community.
 **[TW]** BlueMouse 是一個由 **AGPLv3** 保護的開源項目。這意味著任何使用此代碼的企業產品，都必須回饋社群。這是我們對抗大科技壟斷的武器。
 
-[**Read the Founder's Strategy (創辦人宣言)**](FOUNDER_FAQ.md)
+
+[**Read the License (閱讀授權)**](LICENSE)
 
 ---
 *Built with ❤️ and Logic by [Peijun1700](https://github.com/peijun1700).*
