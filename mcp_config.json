@@ -1,9 +1,9 @@
 {
     "mcpServers": {
-        "blueprint-little-mouse": {
-            "command": "/Users/peijunchen0410/Desktop/bluemouse_v6_release_final/venv/bin/python",
+        "bluemouse-v6": {
+            "command": "python3",
             "args": [
-                "/Users/peijunchen0410/Desktop/bluemouse_v6_release_final/server.py"
+                "run_standalone.py"
             ],
             "env": {
                 "PYTHONUNBUFFERED": "1"
