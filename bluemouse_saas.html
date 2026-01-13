@@ -1224,6 +1224,10 @@
                     if (window.APP_CONFIG.ENABLE_DEBUG) {
                         console.log('✅ API Server 連接成功:', data);
                     }
+                } else if (response.status === 404) {
+                    // 🚨 Hotfix: FastMCP default server has no /health, but responding 404 means it IS running.
+                    console.log('⚠️ API Server Running (No /health endpoint detected, assuming healthy)');
+                    API_AVAILABLE = true;
                 } else {
                     API_AVAILABLE = false;
                 }
