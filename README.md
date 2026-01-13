@@ -2,7 +2,8 @@
 ### The "Prefrontal Cortex" for Generative AI.
 **讓您的 AI 寫程式前，先經過「大腦」思考。**
 
-[![Status](https://img.shields.io/badge/Status-Global%20Mastery-blue?style=for-the-badge)](STATUS_REPORT_v6.0.md)
+
+[![Status](https://img.shields.io/badge/Status-Global%20Mastery-blue?style=for-the-badge)](docs/reports/STATUS_REPORT_v6.1.md)
 [![License](https://img.shields.io/badge/License-AGPLv3-red?style=for-the-badge)](LICENSE)
 
 [![Privacy](https://img.shields.io/badge/Privacy-100%25%20Local-green?style=for-the-badge)](LICENSE)
