@@ -1,0 +1,15 @@
+{
+    "$schema": "https://glama.ai/mcp/schemas/server.json",
+    "name": "bluemouse",
+    "description": "BlueMouse is the \"Prefrontal Cortex\" for LLMs. It uses a 180k+ failure pattern database to validate code logic before execution, acting as a rigorous Quality Gate to prevent hallucinations and unsafe operations.",
+    "maintainers": [
+        "peijun1700"
+    ],
+    "keywords": [
+        "security",
+        "validation",
+        "logic-gate",
+        "mcp-server",
+        "python"
+    ]
+}
