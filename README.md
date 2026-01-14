@@ -46,8 +46,18 @@
 ### 🅱️ For Professional Engineers (工程師模式)
 > *"我想整合 MCP 插件，並在我的專案中注入安全閥。"*
 
-👉 **[MCP 安裝指南 (MCP Setup Guide)](USAGE_GUIDE.md)**
-👉 **[開發者進階工具 (Internal Tools)](internal_tools/README.md)** *(內含 18 萬筆數據訓練腳本)*
+#### 🔌 一鍵快速接入 (One-Click Setup)
+**Mac/Linux/Windows**:
+```bash
+python3 add_to_cursor.py
+```
+這會自動將 BlueMouse 接入您的 Cursor MCP 配置中。
+
+#### 📦 Smithery 接入 (Smithery.ai)
+本項目已配置 `smithery.yaml`，您可以直接在 [Smithery](https://smithery.ai/) 點擊 "Add to Cursor" 進行無感安裝。
+
+👉 **[MCP 完整指南 (MCP Submission Guide)](MCP_SUBMISSION_GUIDE.md)**
+👉 **[架構師手冊 (Usage Guide)](USAGE_GUIDE.md)**
 
 ### 🅰️+🅱️ For Enterprise (企業級部署)
 > *"我們需要極致的安全性與離線環境。"*
