@@ -23,6 +23,16 @@ import os
 import asyncio
 
 
+def is_generic_fallback(result: dict) -> bool:
+    """判斷結果是否為通用保底題目"""
+    if not result or 'questions' not in result or not result['questions']:
+        return True
+    
+    # 檢查第一個問題的 ID 是否為通用問題 ID
+    first_id = result['questions'][0].get('id', '')
+    return first_id in ['q1_concurrency', 'q2_privacy', 'q3_scalability', 'q1_blog_draft_recovery', 'q1_ecommerce_inventory']
+
+
 async def generate_socratic_questions(requirement: str, language: str = 'zh-TW', api_key: str = None) -> dict:
     """
     真正的四層寄生 AI 架構
@@ -178,7 +188,7 @@ KB_MODULES = {}
 
 def load_knowledge_base():
     """載入並構建倒排索引 (O(N) -> O(1))"""
-    global INVERTED_INDEX, KB_MODULES
+    global KB_MODULES
     
     if not os.path.exists(KB_FILE):
         print("⚠️ Knowledge Base not found, using Fallback Static Rules.")
