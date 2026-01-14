@@ -462,21 +462,28 @@ def validate_l9_imports(code: str) -> Dict:
 
 
 def validate_l10_stdlib(code: str) -> Dict:
-    """L10: 標準庫檢查"""
-    # 簡化版本:檢查是否使用了標準庫
-    stdlib_modules = {'os', 'sys', 'json', 're', 'datetime', 'typing'}
-    
-    used_stdlib = []
-    for module in stdlib_modules:
-        if f"import {module}" in code or f"from {module}" in code:
-            used_stdlib.append(module)
-    
-    return {
-        "layer": 10,
-        "name": "標準庫檢查",
-        "passed": True,
-        "message": f"使用了 {len(used_stdlib)} 個標準庫" if used_stdlib else "未使用標準庫"
-    }
+    """L10: 標準庫檢查 (AST 級別)"""
+    try:
+        tree = ast.parse(code)
+        import_names = []
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for n in node.names: import_names.append(n.name.split('.')[0])
+            elif isinstance(node, ast.ImportFrom):
+                if node.module: import_names.append(node.module.split('.')[0])
+        
+        # 常見標準庫清單
+        stdlib = {'os', 'sys', 'json', 're', 'datetime', 'typing', 'asyncio', 'time', 'math', 'hashlib'}
+        used = [name for name in import_names if name in stdlib]
+        
+        return {
+            "layer": 10,
+            "name": "標準庫檢查",
+            "passed": True,
+            "message": f"精確識別出 {len(set(used))} 個標準庫導入"
+        }
+    except Exception as e:
+        return {"layer": 10, "passed": False, "message": f"分析失敗: {e}"}
 
 
 def validate_l11_third_party(code: str) -> Dict:
@@ -498,16 +505,23 @@ def validate_l11_third_party(code: str) -> Dict:
 
 
 def validate_l12_circular_deps(code: str) -> Dict:
-    """L12: 循環依賴檢查"""
-    # 簡化版本:檢查是否有相對導入
-    has_relative_import = "from ." in code
-    
-    return {
-        "layer": 12,
-        "name": "循環依賴檢查",
-        "passed": not has_relative_import,
-        "message": "未發現循環依賴" if not has_relative_import else "可能存在循環依賴"
-    }
+    """L12: 循環依賴檢查 (AST 探測)"""
+    try:
+        tree = ast.parse(code)
+        has_relative = False
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.level > 0:
+                has_relative = True
+                break
+        
+        return {
+            "layer": 12,
+            "name": "循環依賴檢查",
+            "passed": not has_relative,
+            "message": "通過 (未檢測到危險的相對導入)" if not has_relative else "檢測到相對導入，可能存在循環依賴風險"
+        }
+    except Exception as e:
+        return {"layer": 12, "passed": False, "message": f"分析失敗: {e}"}
 
 
 # ============================================================================
@@ -537,16 +551,25 @@ def validate_types_and_logic(code: str, spec: Optional[Dict]) -> List[Dict]:
 
 
 def validate_l13_type_consistency(code: str) -> Dict:
-    """L13: 類型一致性檢查"""
-    # 簡化版本:檢查是否有類型提示
-    has_type_hints = "->" in code or ":" in code
-    
-    return {
-        "layer": 13,
-        "name": "類型一致性檢查",
-        "passed": has_type_hints,
-        "message": "有類型提示" if has_type_hints else "缺少類型提示"
-    }
+    """L13: 類型一致性檢查 (AST 深度掃描)"""
+    try:
+        tree = ast.parse(code)
+        funcs = [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]
+        if not funcs: return {"layer": 13, "name": "類型一致性檢查", "passed": True, "message": "無函數需檢查"}
+        
+        # 檢查所有函數是否都有類型提示
+        total = len(funcs)
+        with_hints = sum(1 for f in funcs if f.returns or any(arg.annotation for arg in f.args.args))
+        
+        passed = (with_hints / total) >= 0.7
+        return {
+            "layer": 13,
+            "name": "類型一致性檢查",
+            "passed": passed,
+            "message": f"函數類型提示覆蓋率: {int(with_hints/total*100)}%"
+        }
+    except Exception as e:
+        return {"layer": 13, "passed": False, "message": f"分析失敗: {e}"}
 
 
 def validate_l14_logic_completeness(code: str) -> Dict:
@@ -574,52 +597,119 @@ def validate_l14_logic_completeness(code: str) -> Dict:
 
 
 def validate_l15_error_handling(code: str) -> Dict:
-    """L15: 錯誤處理檢查"""
-    has_try_except = "try:" in code and "except" in code
-    
-    return {
-        "layer": 15,
-        "name": "錯誤處理檢查",
-        "passed": has_try_except,
-        "message": "有錯誤處理" if has_try_except else "建議添加錯誤處理"
-    }
+    """L15: 錯誤處理檢查 (深度驗證)"""
+    try:
+        tree = ast.parse(code)
+        try_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.Try)]
+        
+        if not try_nodes:
+            return {
+                "layer": 15,
+                "name": "錯誤處理檢查",
+                "passed": False,
+                "message": "建議添加 try-except 錯誤處理塊"
+            }
+            
+        # 深度檢查：是否有空捕獲或僅 pass 的情況
+        bad_handlers = 0
+        for node in try_nodes:
+            for handler in node.handlers:
+                # 檢查處理塊是否為空或只有 pass
+                if not handler.body:
+                    bad_handlers += 1
+                elif len(handler.body) == 1 and isinstance(handler.body[0], ast.Pass):
+                    bad_handlers += 1
+        
+        if bad_handlers > 0:
+            return {
+                "layer": 15,
+                "name": "錯誤處理檢查",
+                "passed": False,
+                "message": f"發現 {bad_handlers} 個空的或只有 pass 的錯誤處理塊 (Anti-pattern)"
+            }
+            
+        return {
+            "layer": 15,
+            "name": "錯誤處理檢查",
+            "passed": True,
+            "message": f"檢測到 {len(try_nodes)} 個有效錯誤處理塊"
+        }
+    except Exception as e:
+        return {"layer": 15, "name": "錯誤處理檢查", "passed": False, "message": f"解析失敗: {str(e)}"}
 
 
 def validate_l16_security(code: str) -> Dict:
-    """L16: 安全性檢查"""
-    # 檢查危險函數
-    dangerous_patterns = ['eval(', 'exec(', '__import__']
-    
-    issues = []
-    for pattern in dangerous_patterns:
-        if pattern in code:
-            issues.append(f"使用了危險函數: {pattern}")
-    
-    return {
-        "layer": 16,
-        "name": "安全性檢查",
-        "passed": len(issues) == 0,
-        "message": "未發現安全問題" if not issues else f"發現 {len(issues)} 個安全問題",
-        "issues": issues if issues else None
-    }
+    """L16: 安全性檢查 (深度分析)"""
+    try:
+        tree = ast.parse(code)
+        issues = []
+        
+        # 1. 檢查危險函數調用
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                func_name = ""
+                if isinstance(node.func, ast.Name):
+                    func_name = node.func.id
+                elif isinstance(node.func, ast.Attribute):
+                    func_name = node.func.attr
+                
+                if func_name in ['eval', 'exec', 'pickle']:
+                    issues.append(f"使用了危險函數: {func_name}")
+                    
+        # 2. 搜尋潛在的寫死 Secret (簡單正則)
+        secret_patterns = [r'api_key\s*=\s*[\'"][^\s*]{10,}[\'"]', r'password\s*=\s*[\'"][^\s*]{8,}[\'"]']
+        for pattern in secret_patterns:
+            if re.search(pattern, code, re.IGNORECASE):
+                issues.append("檢測到可能的寫死密鑰或密碼")
+                break
+                
+        return {
+            "layer": 16,
+            "name": "安全性檢查",
+            "passed": len(issues) == 0,
+            "message": "未發現明顯安全問題" if not issues else f"發現 {len(issues)} 個潛在安全性問題",
+            "issues": issues if issues else None
+        }
+    except Exception as e:
+        return {"layer": 16, "name": "安全性檢查", "passed": False, "message": f"分析失敗: {str(e)}"}
 
 
 def validate_l17_performance(code: str) -> Dict:
-    """L17: 性能檢查"""
-    # 簡化版本:檢查是否有明顯的性能問題
-    issues = []
-    
-    # 檢查嵌套循環
-    if code.count("for ") > 2:
-        issues.append("可能存在多層嵌套循環")
-    
-    return {
-        "layer": 17,
-        "name": "性能檢查",
-        "passed": len(issues) == 0,
-        "message": "未發現性能問題" if not issues else f"發現 {len(issues)} 個性能問題",
-        "issues": issues if issues else None
-    }
+    """L17: 性能檢查 (深度循環分析)"""
+    try:
+        tree = ast.parse(code)
+        max_depth = 0
+        
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.For, ast.While)):
+                depth = 1
+                curr = node
+                while any(isinstance(child, (ast.For, ast.While)) for child in ast.iter_child_nodes(curr)):
+                    depth += 1
+                    # 簡單取第一個找到的子循環
+                    for child in ast.iter_child_nodes(curr):
+                        if isinstance(child, (ast.For, ast.While)):
+                            curr = child
+                            break
+                    if depth > 5: break # 防止死循環
+                max_depth = max(max_depth, depth)
+        
+        if max_depth >= 3:
+            return {
+                "layer": 17,
+                "name": "性能檢查",
+                "passed": False,
+                "message": f"檢測到過深的循環嵌套 (Depth: {max_depth})，建議優化算法"
+            }
+            
+        return {
+            "layer": 17,
+            "name": "性能檢查",
+            "passed": True,
+            "message": f"最高循環嵌套深度: {max_depth} (符合效能規範)"
+        }
+    except Exception as e:
+        return {"layer": 17, "name": "性能檢查", "passed": False, "message": f"分析失敗: {str(e)}"}
 
 
 # ============================================================================

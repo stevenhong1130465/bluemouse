@@ -167,14 +167,36 @@ async def call_antigravity_ai(prompt: str) -> Dict[str, Any]:
 
 def generate_mock_code(prompt: str) -> str:
     """
-    生成模擬代碼（用於測試）
-    
-    在生產環境中，這個函數不會被調用，
-    因為會使用真實的Antigravity AI
+    生成高品質模擬代碼（具現化強化版）
     """
-    
-    # 解析Prompt中的框架
-    if 'Django' in prompt:
+    if 'FastAPI' in prompt:
+        return """
+from fastapi import FastAPI, HTTPException, Depends
+from pydantic import BaseModel, Field
+from typing import List, Optional
+import time
+
+app = FastAPI(title="BlueMouse Generated API")
+
+class Item(BaseModel):
+    name: str = Field(..., example="高效組件")
+    price: float = Field(..., gt=0)
+    stock: int = Field(..., ge=0)
+
+@app.post("/items/", response_model=Item)
+async def create_item(item: Item):
+    \"\"\"
+    建立項目 - 具備 Pydantic 類型驗證與防錯處理
+    \"\"\"
+    try:
+        # 模擬數據庫寫入循環 (用於效能壓測)
+        start_time = time.time()
+        # 實作邏輯...
+        return item
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+"""
+    elif 'Django' in prompt:
         return """
 # models.py
 from django.db import models
@@ -185,61 +207,18 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField()
-    version = models.IntegerField(default=0)  # 樂觀鎖版本號
+    version = models.IntegerField(default=0)
     
-    class Meta:
-        db_table = 'products'
-    
-    def __str__(self):
-        return self.name
-
-
-# views.py
-from django.db import transaction
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-from .models import Product
-
-@require_http_methods(["POST"])
-@transaction.atomic
-def purchase_product(request, product_id: int):
-    \"\"\"
-    購買商品 - 使用樂觀鎖防止超賣
-    
-    技術決策：樂觀鎖（Optimistic Lock）
-    \"\"\"
-    try:
-        quantity = int(request.POST.get('quantity', 1))
-        expected_version = int(request.POST.get('version'))
-        
-        # 使用F()表達式實現樂觀鎖
-        updated = Product.objects.filter(
-            id=product_id,
-            version=expected_version,
-            stock__gte=quantity
-        ).update(
+    def purchase(self, quantity: int):
+        # 實作樂觀鎖優化
+        updated = Product.objects.filter(id=self.id, version=self.version, stock__gte=quantity).update(
             stock=F('stock') - quantity,
             version=F('version') + 1
         )
-        
-        if updated == 0:
-            return JsonResponse({
-                'error': '購買失敗：庫存不足或數據已被修改',
-                'code': 'OPTIMISTIC_LOCK_CONFLICT'
-            }, status=409)
-        
-        return JsonResponse({
-            'success': True,
-            'message': '購買成功'
-        })
-        
-    except Exception as e:
-        return JsonResponse({
-            'error': str(e)
-        }, status=500)
+        return updated > 0
 """
     else:
-        return "# 模擬代碼\nprint('Hello World')"
+        return "# 模擬代碼\n# BlueMouse Engine: Generic Fallback\ndef main():\n    print('Hello World')\n\nif __name__ == '__main__':\n    main()"
 
 
 async def test_workflow():
