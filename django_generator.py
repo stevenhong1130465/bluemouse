@@ -590,26 +590,34 @@ DATABASES = {
 }
 ```
 
-## 3. 運行遷移
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
+        ## 3. 🤖 AI Agent 喚醒 (For Cursor / Windsurf / Copilot)
+        如果您使用 AI 編輯器，請將此文件夾丟入，並輸入以下咒語 (Prompt) 來喚醒專案：
 
-## 4. 創建超級用戶
-```bash
-python manage.py createsuperuser
-```
+        > "這是我用 BlueMouse 生成的 Django 專案架構。請讀取 `models.py` 和 `requirements.txt`。
+        > 1. 幫我安裝所有依賴 (pip install)。
+        > 2. 執行資料庫遷移 (migrate) 並啟動伺服器。
+        > 3. 基於 `models.py` 的詳細註解邏輯，幫我生成對應的前端 HTML 頁面 (使用 Bootstrap 5 或 Tailwind)。"
 
-## 5. 運行服務器
-```bash
-python manage.py runserver
-```
+        ## 4. 運行遷移 (Manual)
+        ```bash
+        python manage.py makemigrations
+        python manage.py migrate
+        ```
 
-## 6. 訪問 API
-- API 文檔: http://localhost:8000/api/
-- Admin 後台: http://localhost:8000/admin/
-"""
+        ## 5. 創建超級用戶
+        ```bash
+        python manage.py createsuperuser
+        ```
+
+        ## 6. 運行服務器
+        ```bash
+        python manage.py runserver
+        ```
+
+        ## 7. 訪問 API
+        - API 文檔: http://localhost:8000/api/
+        - Admin 後台: http://localhost:8000/admin/
+        """
 
 
 def parse_user_answers(module: Dict[str, Any], answers: List[int]) -> Dict[str, bool]:

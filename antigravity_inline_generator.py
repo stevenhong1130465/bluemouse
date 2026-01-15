@@ -454,56 +454,59 @@ def generate_todo_questions(requirement: str, language: str) -> dict:
 
 def generate_generic_questions(requirement: str, language: str) -> dict:
     """通用問題（未匹配到具體場景）"""
+    # 簡單提取關鍵詞作為上下文 (取前10個字，避免過長)
+    context = requirement[:15] + "..." if len(requirement) > 15 else requirement
+    
     if language == 'zh-TW':
         return {
             "questions": [
                 {
                     "id": "q1_concurrency",
                     "type": "single_choice",
-                    "text": "如果多個用戶同時操作同一數據，如何保證一致性？",
+                    "text": f"如果您的「{context}」突然爆紅，同時有 10萬人湧入，您希望系統如何反應？",
                     "options": [
                         {
-                            "label": "A. 悲觀鎖（Pessimistic Lock）",
-                            "description": "絕對安全，但性能極差，用戶可能需排隊。",
+                            "label": "A. 悲觀鎖：保證數據絕不出錯，但用戶需排隊等待",
+                            "description": "絕對安全，適合金融或高價資源，但體驗較慢。",
                             "risk_score": "低風險，高延遲",
                             "value": "pessimistic"
                         },
                         {
-                            "label": "B. 樂觀鎖（Optimistic Lock）",
-                            "description": "性能好，但衝突時會大量失敗重試。",
+                            "label": "B. 樂觀鎖：優先讓用戶操作，衝突時再提示重試",
+                            "description": "體驗流暢，適合大多數應用，但在極端併發下會有失敗率。",
                             "risk_score": "高風險，低延遲",
                             "value": "optimistic"
                         },
                         {
-                            "label": "C. 分散式鎖（Redis）",
-                            "description": "極快，但如果Redis掛了會數據不一致。",
+                            "label": "C. 使用 Redis 高速緩存抗壓",
+                            "description": "極快，能承載巨大流量，但增加架構複雜度。",
                             "risk_score": "依賴外部服務",
                             "value": "redis"
                         }
                     ]
                 },
                 {
-                    "id": "q2_error_handling",
+                    "id": "q2_data_growth",
                     "type": "single_choice",
-                    "text": "如果外部API調用失敗，系統應該如何處理？",
+                    "text": f"隨著「{context}」運行一段時間，數據量達到 1000萬筆時，您最擔心什麼？",
                     "options": [
                         {
-                            "label": "A. 直接返回錯誤",
-                            "description": "用戶立即知道失敗，但體驗差。",
-                            "risk_score": "用戶體驗差",
-                            "value": "fail_fast"
+                            "label": "A. 查詢變慢：即使是簡單的搜索也要幾秒鐘",
+                            "description": "需要提前規劃索引 (Index) 和讀寫分離。",
+                            "risk_score": "性能瓶頸",
+                            "value": "perf_degradation"
                         },
                         {
-                            "label": "B. 重試3次",
-                            "description": "可能成功，但會增加響應時間。",
-                            "risk_score": "延遲增加",
-                            "value": "retry"
+                            "label": "B. 數據安全：擔心被駭客竊取或勒索",
+                            "description": "需要加強加密和備份機制。",
+                            "risk_score": "安全風險",
+                            "value": "security_breach"
                         },
                         {
-                            "label": "C. 降級處理",
-                            "description": "使用備用方案，但功能可能不完整。",
-                            "risk_score": "功能降級",
-                            "value": "degradation"
+                            "label": "C. 維護成本：伺服器費用過高",
+                            "description": "需要考慮冷熱數據分離或歸檔策略。",
+                            "risk_score": "成本失控",
+                            "value": "high_cost"
                         }
                     ]
                 }
