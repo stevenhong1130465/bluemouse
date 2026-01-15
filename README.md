@@ -46,21 +46,21 @@ BlueMouse V6.0 has passed the following rigorous stress tests:
 ### 📐 System Architecture (系統架構)
 ```mermaid
 graph TD
-    User[User Request] --> L1{L1: Antigravity Inline}
-    L1 -->|Miss| L2{L2: Ollama Local}
-    L2 -->|Miss/Timeout| L3{L3: Cloud API (BYOK)}
-    L3 -->|Miss/Offline| L4[L4: Rule Engine Fallback]
+    User["User Request"] --> L1{"L1: Antigravity Inline"}
+    L1 -->|Miss| L2{"L2: Ollama Local"}
+    L2 -->|Miss/Timeout| L3{"L3: Cloud API (BYOK)"}
+    L3 -->|Miss/Offline| L4["L4: Rule Engine Fallback"]
     
     subgraph "Hybrid Fusion Core"
-    L4 -->|Keyword Match| KB[Knowledge Base (180k Data)]
-    KB --> Fusion[Hybrid Fusion Engine]
+    L4 -->|Keyword Match| KB["Knowledge Base (180k Data)"]
+    KB --> Fusion["Hybrid Fusion Engine"]
     end
     
-    Fusion --> Socratic[Socratic Interview]
+    Fusion --> Socratic["Socratic Interview"]
     Socratic --> User
     
-    User -->|Answers| CodeGen[17-Layer Code Generator]
-    CodeGen -->|Compiler Prompt| README[README+Code+Docs]
+    User -->|Answers| CodeGen["17-Layer Code Generator"]
+    CodeGen -->|Compiler Prompt| README["README+Code+Docs"]
 ```
 
 ---
