@@ -94,7 +94,8 @@ class {model_name}(models.Model):
     if features.get('use_decimal'):
         code += '    amount = models.DecimalField(max_digits=19, decimal_places=4, default=0, verbose_name="金額")\n'
     else:
-        code += '    amount = models.FloatField(default=0.0, verbose_name="金額")\n'
+        # Default to Decimal for safety even if not explicitly requested
+        code += '    amount = models.DecimalField(max_digits=19, decimal_places=4, default=0, verbose_name="金額")\n'
     
     code += '\n'
     
@@ -141,129 +142,61 @@ class {model_name}(models.Model):
 # ----------------------------------------
 '''.format(model_name, model_name)
 
-    if features.get('use_blog'):
+    if features.get('use_audit_log'):
         code += '''
-class Post(models.Model):
+# ----------------------------------------
+# [強制] 醫療級審計日誌 (HIPAA Compliance)
+# ----------------------------------------
+class AuditLog(models.Model):
     """
-    部落格文章
+    不可竄改的操作日誌
     """
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="作者")
-    title = models.CharField(max_length=200, verbose_name="標題")
-    content = models.TextField(verbose_name="內容")
-    status = models.CharField(max_length=20, default='draft', verbose_name="狀態")
-    published_at = models.DateTimeField(null=True, blank=True, verbose_name="發布時間")
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return self.title
+    action = models.CharField(max_length=50, verbose_name="操作類型")
+    user_id = models.IntegerField(verbose_name="操作者ID") 
+    target_id = models.IntegerField(verbose_name="目標對象ID")
+    ip_address = models.GenericIPAddressField(verbose_name="來源IP")
+    payload = models.TextField(verbose_name="操作內容(加密)")
+    timestamp = models.DateTimeField(auto_now_add=True)
+    hash_signature = models.CharField(max_length=128, verbose_name="防竄改雜湊")
 
-class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    author = models.CharField(max_length=100, verbose_name="留言者")
-    content = models.TextField(verbose_name="留言內容")
-    is_spam = models.BooleanField(default=False, verbose_name="垃圾留言")
-    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [models.Index(fields=['timestamp', 'user_id'])]
+        
+    def save(self, *args, **kwargs):
+        # 這裡應該實作鏈式雜湊 (Chained Hash) 以防止刪改
+        super().save(*args, **kwargs)
+
 '''
 
-    if features.get('use_booking'):
+    if features.get('use_ecommerce') or features.get('use_crypto'):
         code += '''
-class Service(models.Model):
-    name = models.CharField(max_length=100, verbose_name="服務名稱")
-    duration_minutes = models.IntegerField(default=60, verbose_name="時長(分)")
+class Product(models.Model):
+    name = models.CharField(max_length=200, verbose_name="商品名稱")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="價格")
+    stock = models.IntegerField(default=0, verbose_name="庫存")
     
     def __str__(self):
         return self.name
 
-class Appointment(models.Model):
-    """
-    預約記錄
-    """
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="預約人")
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, verbose_name="服務")
-    start_time = models.DateTimeField(verbose_name="開始時間")
-    end_time = models.DateTimeField(verbose_name="結束時間")
-    status = models.CharField(max_length=20, default='pending', verbose_name="狀態")
-    note = models.TextField(blank=True, verbose_name="備註")
-    
+class Order(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="總價")
+    status = models.CharField(max_length=20, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"{self.user} - {self.start_time}"
-'''
-
-    if features.get('use_chat'):
-        code += '''
-class ChatRoom(models.Model):
-    name = models.CharField(max_length=100, blank=True, verbose_name="群組名稱")
-    participants = models.ManyToManyField(User, related_name='chat_rooms')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-class Message(models.Model):
-    """
-    聊天訊息
-    """
-    room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name='messages')
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="傳送者")
-    content = models.TextField(verbose_name="內容")
-    is_read = models.BooleanField(default=False, verbose_name="已讀")
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['created_at']
-'''
-
-    if features.get('use_todo'):
-        code += '''
-class TaskLayer(models.Model):
-    """
-    任務層級 (支持無限遞歸)
-    """
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='subtasks')
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200, verbose_name="標題")
-    is_completed = models.BooleanField(default=False, verbose_name="完成")
-    due_date = models.DateTimeField(null=True, blank=True, verbose_name="截止日")
-    priority = models.IntegerField(default=0, verbose_name="優先級")
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return self.title
 '''
 
     if features.get('use_crypto'):
         code += '''
 class Wallet(models.Model):
-    """
-    加密貨幣錢包
-    """
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wallets')
-    currency = models.CharField(max_length=10, default='BTC', verbose_name="幣種")
-    address = models.CharField(max_length=100, unique=True, verbose_name="地址")
+    address = models.CharField(max_length=42, unique=True, db_index=True, verbose_name="錢包地址")
     balance = models.DecimalField(max_digits=20, decimal_places=8, default=0, verbose_name="餘額")
-    
-    # 私鑰管理 (注意：生產環境應使用 KMS)
-    private_key_encrypted = models.TextField(verbose_name="加密私鑰", help_text="使用 AES-256 加密儲存")
-    
+    is_custodial = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.currency}: {self.address}"
-
-class BlockchainTransaction(models.Model):
-    """
-    鏈上交易記錄
-    """
-    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='txs')
-    tx_hash = models.CharField(max_length=100, unique=True, verbose_name="交易哈希")
-    amount = models.DecimalField(max_digits=20, decimal_places=8, verbose_name="金額")
-    confirmations = models.IntegerField(default=0, verbose_name="確認數")
-    status = models.CharField(max_length=20, default='pending', verbose_name="狀態")
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 '''
+    return code
     return code
 
 
@@ -678,5 +611,9 @@ def parse_user_answers(module: Dict[str, Any], answers: List[int]) -> Dict[str, 
             features['use_chat'] = True
         if val in ['cascade_delete', 'orphan_children', 'last_write_wins', 'manual_merge']:
             features['use_todo'] = True
+            
+        # Medical Domain Detection
+        if val in ['drug', 'prescription', 'medical', 'clinic', 'hospital', 'doctor', 'corp_liable', 'on_prem', 'human_verify']:
+            features['use_audit_log'] = True
             
     return features

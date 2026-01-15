@@ -54,7 +54,29 @@ async def generate_socratic_questions(requirement: str, language: str = 'zh-TW',
     
     # 層次 1: Antigravity 內聯生成 (規則引擎)
     try:
+        # Hybrid Approach: Try Layer 1 first
         result = layer1_antigravity_inline(requirement, language)
+        
+        # [Hybrid Fusion]
+        # Check if we have specific domain knowledge that Layer 1 might have missed
+        static_cats = detect_static_categories(requirement)
+        if static_cats:
+            print(f"  [Hybrid] 🔍 Detected Expert Domains: {static_cats}")
+            # Fetch template questions
+            expert_questions = []
+            seen_ids = set(q.get('id', '') for q in result.get('questions', []))
+            
+            for cat in static_cats:
+                 cat_questions = TEMPLATE_LIBRARY.get(cat, lambda l: {'questions': []})(language).get('questions', [])
+                 for q in cat_questions:
+                     if q['id'] not in seen_ids:
+                         expert_questions.append(normalize_question_format(q))
+                         seen_ids.add(q['id'])
+            
+            if expert_questions:
+                print(f"  [Hybrid] 💉 Injecting {len(expert_questions)} expert questions...")
+                result['questions'] = expert_questions + result.get('questions', [])
+                
         return result
     except Exception as e:
         print(f"  [1/4] ⏭️  {e}")
@@ -353,7 +375,8 @@ def layer4_fallback(requirement: str, language: str) -> dict:
             module_data = KB_MODULES.get(key)
             if not module_data: continue
             
-            for q in module_data.get('questions', []):
+            qs = module_data.get('questions', [])
+            for q in qs:
                 if q['id'] not in seen_ids:
                     fused_questions.append(q)
                     seen_ids.add(q['id'])
@@ -376,9 +399,12 @@ def layer4_fallback(requirement: str, language: str) -> dict:
                 "questions": fused_questions,
                 "template_id": f"fusion_{'_'.join(matched_keys + static_cats)}"
             }
-    
-    # 3. 如果完全沒命中，回退到 Default
-    print(f"  [4/4] 📋 未命中特定領域，使用預設題庫")
+        else:
+             print("  [4/4] ⚠️ Fusion logic yielded no questions despite keyword match. Falling back to default.")
+             return TEMPLATE_LIBRARY['default'](language)
+            
+    # 3. 如果完全沒命中(或命中但無題目)，回退到 Default
+    print(f"  [4/4] 📋 未命中特定領域(或空集合)，使用預設題庫")
     return TEMPLATE_LIBRARY['default'](language)
 
 def search_index_multi(req: str) -> list:
@@ -422,6 +448,18 @@ def detect_static_categories(req: str) -> list:
         
     if any(k in req for k in ['saas', 'crm', 'erp', 'tenant', 'b2b', '管理', '企業', '租戶']):
         categories.add('saas')
+
+    if any(k in req for k in ['doctor', 'hospital', 'patient', 'drug', 'prescription', 'medical', 'clinic', '醫生', '醫院', '病人', '藥', '處方', '診所', '醫療']):
+        categories.add('medical')
+
+    if any(k in req for k in ['vote', 'election', 'poll', 'democracy', 'ballot', 'voting', '投票', '選舉', '民調', '民主']):
+        categories.add('voting')
+
+    # [Ethics Guard] - Dark Pattern Detection
+    if any(k in req for k in ['mlm', 'ponzi', 'scheme', 'downline', 'yield', 'return', 'profit', 'guarantee', 'scam', 'fraud', '龐氏', '傳銷', '直銷', '下線', '暴利', '保本', '高收益']):
+         # Only trigger if it looks seemingly high-risk financial
+         if '30%' in req or '100%' in req or 'guarantee' in req.lower() or '保證' in req or 'level' in req.lower() or '層' in req:
+            categories.add('ethics')
         
     return list(categories) if categories else []
 
@@ -763,6 +801,165 @@ TEMPLATE_LIBRARY = {
                         "description": "保持產品純淨。但可能會失去這個大客戶。",
                         "risk_score": "營收損失",
                         "value": "reject"
+                    }
+                ]
+            }
+        ]
+    },
+
+    'medical': lambda lang: {
+        "questions": [
+            {
+                "id": "med_license",
+                "type": "single_choice",
+                "text": "這是醫療器材行為，AI 給出錯誤診斷導致病人死亡，誰要坐牢？" if lang == 'zh-TW' else "AI misdiagnosis kills patient. Who goes to jail?",
+                "options": [
+                    {
+                        "label": "A. 我們公司 (Corporation)",
+                        "description": "公司破產倒閉。且可能構成過失殺人。",
+                        "risk_score": "法律地獄",
+                        "value": "corp_liable"
+                    },
+                    {
+                        "label": "B. 標註免責聲明 (Disclaimer)",
+                        "description": "「本建議僅供參考」。但在重症場景下，法律不一定承認。",
+                        "risk_score": "合規風險",
+                        "value": "disclaimer"
+                    },
+                    {
+                        "label": "C. Human-in-the-loop (醫生複核)",
+                        "description": "AI 只出草稿，醫生簽字才生效。最安全但效率最低。",
+                        "risk_score": "營運成本極高",
+                        "value": "human_verify"
+                    }
+                ]
+            },
+            {
+                "id": "med_privacy",
+                "type": "single_choice",
+                "text": "病人的X光片和病歷數據 (PHI) 要存在哪裡？" if lang == 'zh-TW' else "Where to store Patient Health Information (PHI)?",
+                "options": [
+                    {
+                        "label": "A. 一般雲端硬碟 (S3 public)",
+                        "description": "絕對違法 (HIPAA/GDPR)。第一天就被罰款罰到倒閉。",
+                        "risk_score": "直接倒閉",
+                        "value": "s3_public"
+                    },
+                    {
+                        "label": "B. 私有化部署 (On-Premise)",
+                        "description": "放在醫院機房，不聯網。最安全，但維護困難。",
+                        "risk_score": "維護成本",
+                        "value": "on_prem"
+                    },
+                    {
+                        "label": "C. 加密雲端 (HIPAA Compliant Cloud)",
+                        "description": "資料庫欄位級加密 (Field-level Encryption)。開發複雜。",
+                        "risk_score": "開發複雜度大",
+                        "value": "encrypted_cloud"
+                    }
+                ]
+            }
+        ]
+    },
+
+    'voting': lambda lang: {
+         "questions": [
+            {
+                "id": "vote_coercion",
+                "type": "single_choice",
+                "text": "如何防止「買票」(Vote Buying) 或「脅迫投票」(Coercion)？" if lang == 'zh-TW' else "How to prevent Vote Buying / Coercion?",
+                "options": [
+                    {
+                        "label": "A. 無法防止 (Web Voting)",
+                        "description": "在家投票雖然方便，但黑道可以拿著槍指著你的頭叫你按。",
+                        "risk_score": "民主崩壞風險",
+                        "value": "web_vote"
+                    },
+                    {
+                        "label": "B. 現場投票 (Polling Station)",
+                        "description": "雖然老土，但「秘密投票亭」是唯一能物理隔絕脅迫的方案。",
+                        "risk_score": "投票率低",
+                        "value": "physical_vote"
+                    },
+                    {
+                        "label": "C. 可否認投票 (Deniable Voting)",
+                        "description": "允許投很多次，最後一次才算數。可以給黑道看假的投票畫面。",
+                        "risk_score": "系統極複雜",
+                        "value": "deniable_vote"
+                    }
+                ]
+            },
+            {
+                "id": "vote_audit",
+                "type": "single_choice",
+                "text": "如果輸的一方不承認結果，如何驗票 (Verifiability)？" if lang == 'zh-TW' else "Loser denies result. How to verify?",
+                "options": [
+                    {
+                        "label": "A. 查看資料庫 Log",
+                        "description": "沒用，輸家會說「Log 是你們工程師偽造的」。",
+                        "risk_score": "公信力破產",
+                        "value": "db_log"
+                    },
+                    {
+                        "label": "B. 區塊鏈存證 (Blockchain)",
+                        "description": "數學上不可竄改。但一般民眾看不懂雜湊值 (Hash)。",
+                        "risk_score": "認知門檻高",
+                        "value": "blockchain"
+                    },
+                    {
+                        "label": "C. 紙本收據 (VVPAT)",
+                        "description": "電子投票後印出一張紙，投入票匭。爭議時數紙本。",
+                        "risk_score": "硬體成本高",
+                        "value": "vvpat"
+                    }
+                ]
+            }
+        ]
+    },
+    
+    'ethics': lambda lang: {
+        "questions": [
+            {
+                "id": "ethics_scam_check",
+                "type": "single_choice",
+                "text": "此商業模式涉及高風險承諾 (High Yield / MLM)，是否擁有合法金融牌照？" if lang == 'zh-TW' else "Business model flags: High Yield / MLM. Do you have a banking license?",
+                "options": [
+                    {
+                        "label": "A. 無牌照 (Unregulated)",
+                        "description": "這是典型的龐氏騙局 (Ponzi Scheme)。開發此系統可能構成「幫助詐欺罪」。",
+                        "risk_score": "非法吸金/坐牢",
+                        "value": "illegal"
+                    },
+                    {
+                        "label": "B. 這只是遊戲幣 (Utility Token)",
+                        "description": "雖然不直接違法，但如果涉及法幣兌換，依然極度危險。",
+                        "risk_score": "合規灰色地帶",
+                        "value": "grey_area"
+                    },
+                    {
+                        "label": "C. 有完整牌照 (Licensed)",
+                        "description": "需實作完整的 KYC/AML (反洗錢) 系統，且需保留 10 年審計日誌。",
+                        "risk_score": "合規成本極高",
+                        "value": "licensed"
+                    }
+                ]
+            },
+            {
+                "id": "ethics_user_safety",
+                "type": "single_choice",
+                "text": "如果系統倒閉，最後一波使用者的錢賠得出來嗎 (Liquidity)？" if lang == 'zh-TW' else "If system fails, can last-in users be refunded?",
+                "options": [
+                    {
+                        "label": "A. 賠不出來 (Insolvent)",
+                        "description": "這就是老鼠會。請立即停止您的創業想法。",
+                        "risk_score": "社會危害极大",
+                        "value": "insolvent"
+                    },
+                    {
+                        "label": "B. 有信託保證金 (Escrow)",
+                        "description": "錢都在銀行信託專戶。需要對接銀行 API 進行專款專用。",
+                        "risk_score": "開發複雜度高",
+                        "value": "escrow"
                     }
                 ]
             }
