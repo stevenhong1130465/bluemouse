@@ -19,9 +19,15 @@ COPY . .
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
+# Install Node.js and mcp-proxy for Glama inspection support
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && npm install -g mcp-proxy \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Expose port (if running in SSE mode, though StdIO is default)
 EXPOSE 8000
 
-# Default command to run the MCP server
-# Smithery uses this as the entry point
-CMD ["python", "server.py", "--sse"]
+# Default command to run the MCP server with mcp-proxy for inspection
+CMD ["mcp-proxy", "python", "server.py", "--sse"]
