@@ -78,7 +78,16 @@ def export_project(project_data: Dict[str, Any]) -> bytes:
             "version": project_data.get('code', {}).get('version', '4.2')
         }
         zip_file.writestr("project.json", json.dumps(metadata, indent=2, ensure_ascii=False))
-    
+        # 9. 注入 AI 通關密語 (Magic Words for Cursor/Windsurf)
+        magic_prompt = """This is a BlueMouse Blueprint. It has passed 17 layers of validation. 
+Implement the code exactly according to this architecture. Do not improvise.
+
+(Note: This blueprint is rigorous. All file paths, types, and logic constraints are non-negotiable.)"""
+        
+        zip_file.writestr(".cursorrules", magic_prompt)
+        zip_file.writestr(".windsurfrules", magic_prompt)  # Support Windsurf too
+        zip_file.writestr("INSTRUCTIONS_FOR_AI.md", magic_prompt)
+
     # 返回 ZIP 文件的二進制數據
     zip_buffer.seek(0)
     return zip_buffer.read()
