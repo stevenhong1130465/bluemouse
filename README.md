@@ -1,6 +1,7 @@
-# 🐭 BlueMouse (藍圖小老鼠) v6.1
-### The "Prefrontal Cortex" for Generative AI.
-**讓您的 AI 寫程式前，先經過「大腦」思考。**
+# 🐭 BlueMouse (藍圖小老鼠) v6.6-industrial
+### The "Parasitic Logic Layer" for Cursor & Windsurf.
+**Stop Vibe Coding. Start Engineering.**
+**讓您的 AI 寫程式前，先經過「前額葉」思考。**
 bluemouse.ai@gmail.com
 
 
@@ -20,15 +21,18 @@ bluemouse.ai@gmail.com
 **[TW]** 在 **Vibe Coding** 盛行的時代，AI 產生代碼的速度比我們閱讀的速度還快。但即使是最強的 AI (Claude 3.5 / 4.5) 也會出現邏輯幻覺。**BlueMouse 是您的安全氣囊 (Airbag)。** 它不是另一個寫代碼的工具，它是**「阻止爛代碼發生」**的守門員。
 
 ### 🔥 Core Features (核心強項)
+*   **🦠 Parasitic Architecture (寄生架構)**
+    *   **[EN]** $0 Infrastructure Cost. It sits between you and the compiler, intercepting commands in <10ms.
+    *   **[TW]** **$0 營運成本**。它寄生於您的開發環境，以 <10ms 的速度攔截並過濾危險指令。
+*   **👆 One-Word Start (一鍵啟動)**
+    *   **[EN]** Just drag the folder into Cursor and type "**Start**". We inject `.cursorrules` automatically.
+    *   **[TW]** 只需要把資料夾拖進 Cursor，打一個字 **"Start"**。系統會自動讀取我們注入的隱形指令。
 *   **🧠 Socratic Logic Gate (蘇格拉底門禁)**
-    *   **[EN]** Before writing code, BlueMouse interviews the AI to ensure logic soundness. *Pass rate: 64%.*
-    *   **[TW]** 在 AI 動手寫 Code 之前，先進行「邏輯面試」。*通過率僅 64%，確保只有想清楚的代碼能被執行。*
-*   **🛡️ 100% Data Privacy (絕對隱私)**
-    *   **[EN]** **Zero Telemetry.** No data is sent to the developer. Runs locally on your machine.
-    *   **[TW]** **零遙測數據**。沒有任何數據會傳回給開發者。適合注重 IP 安全的企業與個人開發者。
-*   **🌐 Self-Healing Context (動態修復)**
-    *   **[EN]** Automatically detects 12 scenarios (Blog to Crypto) and adjusts security protocols dynamically.
-    *   **[TW]** 自動識別 12 種場景（從部落格到加密貨幣交易），動態調整安全審查標準。
+    *   **[EN]** Before writing code, BlueMouse interviews the AI to ensure logic soundness.
+    *   **[TW]** 在 AI 動手寫 Code 之前，先進行「邏輯面試」。確保只有想清楚的代碼能被執行。
+*   **🛡️ 17-Layer Validation (17層軍規驗證)**
+    *   **[EN]** Code passes through 17 layers of AST parsing, type checking, and security audits.
+    *   **[TW]** 代碼生成後，必須通過 17 道邏輯閘（AST 解析、型別檢查、安全審計）才能交付。
 
 ### 🛡️ Enterprise Security (企業安全)
 *   **[隱私白皮書 (Privacy Whitepaper)](PRIVACY.md)**: 詳細說明 100% 本地化運行的技術細節。
