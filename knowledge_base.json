@@ -107,6 +107,47 @@
           ]
         }
       ]
+    },
+    "safety_critical": {
+      "keywords": [
+        "nuclear",
+        "medical",
+        "flight",
+        "power",
+        "hardware",
+        "controller",
+        "embedded",
+        "safety",
+        "life",
+        "death",
+        "核能",
+        "醫療",
+        "航空",
+        "硬體",
+        "控制",
+        "生命"
+      ],
+      "questions": [
+        {
+          "id": "dd_fail_safe",
+          "type": "single_choice",
+          "text": "這是「人命關天」的系統(Safety Critical)。如果控制晶片突然燒了(Hardware Failure)，您的系統會？",
+          "options": [
+            {
+              "label": "A. 故障導向安全 (Fail-Safe)",
+              "description": "立即切斷電源/停止運作，確保不會爆炸或害死人。(核電廠/醫療標準)",
+              "risk_score": "系統停機風險",
+              "value": "fail_safe"
+            },
+            {
+              "label": "B. 故障導向運作 (Fail-Operational)",
+              "description": "啟動備用系統繼續運作。飛機引擎通常用這個，因為不能空中停機。",
+              "risk_score": "設計極其複雜",
+              "value": "fail_operational"
+            }
+          ]
+        }
+      ]
     }
   }
 }

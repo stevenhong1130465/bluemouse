@@ -434,7 +434,7 @@ def detect_static_categories(req: str) -> list:
     if any(k in req for k in ['shop', 'buy', 'order', 'pay', 'store', '電商', '購物', '訂單', '支付', '賣', '買', '下單']):
         categories.add('ecommerce')
         
-    if any(k in req for k in ['chat', 'social', 'message', 'friend', 'post', 'feed', '社交', '聊天', '社群', '動態', '這交']):
+    if any(k in req for k in ['chat', 'social', 'message', 'friend', 'post', 'feed', '社交', '聊天', '社群', '動態', '交友']):
         categories.add('social')
         
     if any(k in req for k in ['video', 'stream', 'music', 'blog', 'news', 'cms', '影音', '直播', '新聞', '內容', '文章', 'netflix', 'youtube', 'movie', 'film', 'spotify']):
