@@ -662,7 +662,7 @@
 
         <!-- Pain Section -->
         <section class="pain-section">
-            <h2 data-i18n="pain_title">The Pain: 你的 Copilot 正在產生技術債</h2>
+            <h2 data-i18n="pain_title">The Pain: Your Copilot is Creating Tech Debt</h2>
             <div class="comparison">
                 <div class="comparison-card bad">
                     <h3 data-i18n="other_ai">Other AI 💩</h3>
@@ -743,7 +743,7 @@
                     rows="4" oninput="handleRequirementInput(this)"></textarea>
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 13px; color: #6B7280;">
-                    <span id="charCount">0 / 5000 字</span>
+                    <span id="charCount" data-i18n="char_count">0 / 5000 chars</span>
                     <span id="lengthWarning" style="color: #EF4444; display: none;">⚠️ 輸入過長可能影響性能</span>
                 </div>
                 <select class="input-neu" id="framework">
@@ -876,7 +876,9 @@
                 "hero_title": "拒絕 Vibe Coding，奪回邏輯主權",
                 "hero_subtitle": "全球唯一具備17層邏輯驗證的AI架構師。不亮綠燈，不准生成。",
                 "cta_start": "開始免費試用",
-                "pain_title": "The Pain: 你的 Copilot 正在產生技術債",
+                "pain_title": "痛點:你的 Copilot 正在產生技術債",
+                "other_ai": "其他 AI 💩",
+                "char_count": "0 / 5000 字",
                 "other_ai": "Other AI 💩",
                 "pain_1": "憑感覺生成代碼",
                 "pain_2": "邊界情況完全沒考慮",
@@ -931,6 +933,8 @@
                 "hero_subtitle": "The only AI architect with 17-layer logic validation. No green light, no generation.",
                 "cta_start": "Start Free Trial",
                 "pain_title": "The Pain: Your Copilot is Creating Tech Debt",
+                "other_ai": "Other AI 💩",
+                "char_count": "0 / 5000 chars",
                 "other_ai": "Other AI 💩",
                 "pain_1": "Generates code by vibes",
                 "pain_2": "Edge cases not considered",
@@ -1044,24 +1048,27 @@
             const charCountEl = document.getElementById('charCount');
             const warningEl = document.getElementById('lengthWarning');
 
-            // 更新字數統計
+            const MAX_INPUT_LENGTH = 5000;
             if (charCountEl) {
-                charCountEl.textContent = `${length} / ${MAX_INPUT_LENGTH} 字`;
+                // 使用 i18n 翻譯
+                const suffix = currentLang === 'zh-TW' ? '字' : 'chars';
+                charCountEl.textContent = `${length} / ${MAX_INPUT_LENGTH} ${suffix}`;
 
+                // 顏色警告
                 if (length > MAX_INPUT_LENGTH) {
                     charCountEl.style.color = '#EF4444';
-                    warningEl.style.display = 'inline';
-                } else if (length > MAX_INPUT_LENGTH * 0.8) {
+                    if (warningEl) warningEl.style.display = 'inline';
+                } else if (length > MAX_INPUT_LENGTH * 0.9) {
                     charCountEl.style.color = '#F59E0B';
-                    warningEl.style.display = 'none';
+                    if (warningEl) warningEl.style.display = 'none';
                 } else {
                     charCountEl.style.color = '#6B7280';
-                    warningEl.style.display = 'none';
+                    if (warningEl) warningEl.style.display = 'none';
                 }
             }
 
-            // 問題4：自動保存草稿
-            autoSaveDraft();
+            // 自動保存草稿
+            saveDraft();
         }
 
         // ===== 問題4：localStorage 草稿保存 =====
@@ -1449,8 +1456,12 @@
         }
 
         function submitAnswers() {
+            // 🐛 Bug Fix: 確保所有問題都已回答
             if (Object.keys(userAnswers).length < currentQuestions.length) {
-                alert(currentLang === 'zh-TW' ? '請回答所有問題' : 'Please answer all questions');
+                const message = currentLang === 'zh-TW'
+                    ? `請回答所有問題 (已回答 ${Object.keys(userAnswers).length}/${currentQuestions.length})`
+                    : `Please answer all questions (answered ${Object.keys(userAnswers).length}/${currentQuestions.length})`;
+                alert(message);
                 return;
             }
 
