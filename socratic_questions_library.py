@@ -17,43 +17,88 @@ QUESTION_LIBRARY: Dict[str, List[Dict[str, Any]]] = {
     # 付款/交易場景 (Payment/Transaction)
     "payment": [
         {
-            "text": "如果付款 API 在扣款後超時(30秒無響應),你要如何確認付款是否成功?",
+            "text": {
+                "zh-TW": "如果付款 API 在扣款後超時(30秒無響應),你要如何確認付款是否成功?",
+                "en-US": "If payment API times out after deduction (30s no response), how to confirm payment success?"
+            },
             "category": "error_handling",
-            "options": ["A. 立即重試付款請求", "B. 調用查詢付款狀態 API", "C. 標記為待確認,人工處理"],
-            "risk_analysis": {"0": "⚠️ 重複扣款風險", "1": "✅ 標準做法", "2": "⚠️ 用戶體驗差"},
-            "trap": "測試用戶是否理解冪等性和分布式事務"
+            "options": {
+                "zh-TW": ["A. 立即重試付款請求", "B. 調用查詢付款狀態 API", "C. 標記為待確認,人工處理"],
+                "en-US": ["A. Retry payment immediately", "B. Call payment status query API", "C. Mark as pending, manual handling"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "⚠️ 重複扣款風險", "1": "✅ 標準做法", "2": "⚠️ 用戶體驗差"},
+                "en-US": {"0": "⚠️ Duplicate charge risk", "1": "✅ Standard practice", "2": "⚠️ Poor UX"}
+            },
+            "trap": "Testing idempotency and distributed transaction understanding"
         },
         {
-            "text": "用戶付款成功但訂單建立失敗,你要如何處理?",
+            "text": {
+                "zh-TW": "用戶付款成功但訂單建立失敗,你要如何處理?",
+                "en-US": "User payment succeeded but order creation failed, how to handle?"
+            },
             "category": "recovery",
-            "options": ["A. 自動退款給用戶", "B. 重試建立訂單 (最多3次)", "C. 保留付款記錄,允許用戶重新下單"],
-            "risk_analysis": {"0": "⚠️ 損失交易機會", "1": "✅ 自動恢復", "2": "⚠️ 客服成本高"},
-            "trap": "測試用戶對補償事務的理解"
+            "options": {
+                "zh-TW": ["A. 自動退款給用戶", "B. 重試建立訂單 (最多3次)", "C. 保留付款記錄,允許用戶重新下單"],
+                "en-US": ["A. Auto refund to user", "B. Retry order creation (max 3 times)", "C. Keep payment record, allow re-order"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "⚠️ 損失交易機會", "1": "✅ 自動恢復", "2": "⚠️ 客服成本高"},
+                "en-US": {"0": "⚠️ Lost transaction", "1": "✅ Auto recovery", "2": "⚠️ High support cost"}
+            },
+            "trap": "Testing compensating transaction understanding"
         },
         {
-            "text": "如果用戶在付款過程中按下 '上一頁'，系統會發生什麼？",
+            "text": {
+                "zh-TW": "如果用戶在付款過程中按下 '上一頁',系統會發生什麼?",
+                "en-US": "If user clicks 'back' during payment, what happens?"
+            },
             "category": "state_management",
-            "options": ["A. 重複建立訂單", "B. 鎖定訂單，提示 '付款中'", "C. 無反應"],
-            "risk_analysis": {"0": "⚠️ 髒數據風險", "1": "✅ 狀態機保護", "2": "⚠️ 用戶困惑"},
-            "trap": "測試前端狀態鎖定意識"
+            "options": {
+                "zh-TW": ["A. 重複建立訂單", "B. 鎖定訂單,提示 '付款中'", "C. 無反應"],
+                "en-US": ["A. Duplicate order creation", "B. Lock order, show 'Payment in progress'", "C. No response"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "⚠️ 髒數據風險", "1": "✅ 狀態機保護", "2": "⚠️ 用戶困惑"},
+                "en-US": {"0": "⚠️ Dirty data risk", "1": "✅ State machine protection", "2": "⚠️ User confusion"}
+            },
+            "trap": "Testing frontend state locking awareness"
         }
     ],
 
     # 庫存/並發場景 (Inventory/Concurrency)
     "inventory": [
         {
-            "text": "兩個用戶同時購買最後一件商品,你要如何處理?",
+            "text": {
+                "zh-TW": "兩個用戶同時購買最後一件商品,你要如何處理?",
+                "en-US": "Two users buy the last item simultaneously, how to handle?"
+            },
             "category": "concurrency",
-            "options": ["A. 先到先得 (DB Lock)", "B. 兩者都成功,超賣後補貨", "C. 使用 Redis 原子操作"],
-            "risk_analysis": {"0": "✅ 安全但慢", "1": "⚠️ 商業風險", "2": "✅ 高性能推薦"},
-            "trap": "測試並發控制能力"
+            "options": {
+                "zh-TW": ["A. 先到先得 (DB Lock)", "B. 兩者都成功,超賣後補貨", "C. 使用 Redis 原子操作"],
+                "en-US": ["A. First come first served (DB Lock)", "B. Both succeed, restock after oversell", "C. Use Redis atomic operations"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "✅ 安全但慢", "1": "⚠️ 商業風險", "2": "✅ 高性能推薦"},
+                "en-US": {"0": "✅ Safe but slow", "1": "⚠️ Business risk", "2": "✅ High performance recommended"}
+            },
+            "trap": "Testing concurrency control capability"
         },
         {
-            "text": "閃購活動 (Flash Sale) 流量瞬間暴增 100倍，數據庫撐不住怎麼辦？",
+            "text": {
+                "zh-TW": "閃購活動 (Flash Sale) 流量瞬間暴增 100倍,數據庫撐不住怎麼辦?",
+                "en-US": "Flash Sale traffic surges 100x, database can't handle it, what to do?"
+            },
             "category": "performance",
-            "options": ["A. 升級數據庫規格", "B. 引入 Redis 預扣庫存 + 消息隊列", "C. 限流 (Rate Limit)"],
-            "risk_analysis": {"0": "⚠️ 成本極高且無效", "1": "✅ 標準架構", "2": "✅ 保護系統但犧牲體驗"},
-            "trap": "測試高並發架構設計"
+            "options": {
+                "zh-TW": ["A. 升級數據庫規格", "B. 引入 Redis 預扣庫存 + 消息隊列", "C. 限流 (Rate Limit)"],
+                "en-US": ["A. Upgrade database specs", "B. Introduce Redis pre-deduction + message queue", "C. Rate limiting"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "⚠️ 成本極高且無效", "1": "✅ 標準架構", "2": "✅ 保護系統但犧牲體驗"},
+                "en-US": {"0": "⚠️ Extremely costly and ineffective", "1": "✅ Standard architecture", "2": "✅ Protects system but sacrifices UX"}
+            },
+            "trap": "Testing high concurrency architecture design"
         }
     ],
 
@@ -148,65 +193,128 @@ QUESTION_LIBRARY: Dict[str, List[Dict[str, Any]]] = {
     # API 集成 (API Integration)
     "api_integration": [
         {
-            "text": "第三方 API 響應時間超過 5 秒,你要如何處理?",
+            "text": {
+                "zh-TW": "第三方 API 響應時間超過 5 秒,你要如何處理?",
+                "en-US": "Third-party API response time exceeds 5 seconds, how to handle?"
+            },
             "category": "reliability",
-            "options": ["A. 等待直到超時", "B. Circuit Breaker (熔斷機制)", "C. 返回錯誤"],
-            "risk_analysis": {"0": "⚠️ 雪崩效應風險", "1": "✅ 保護系統", "2": "⚠️ 體驗差"},
-            "trap": "測試服務治理能力"
+            "options": {
+                "zh-TW": ["A. 等待直到超時", "B. Circuit Breaker (熔斷機制)", "C. 返回錯誤"],
+                "en-US": ["A. Wait until timeout", "B. Circuit Breaker", "C. Return error"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "⚠️ 雪崩效應風險", "1": "✅ 保護系統", "2": "⚠️ 體驗差"},
+                "en-US": {"0": "⚠️ Avalanche effect risk", "1": "✅ Protects system", "2": "⚠️ Poor UX"}
+            },
+            "trap": "Testing service governance capability"
         },
         {
-            "text": "如何防止惡意用戶重複調用你的 API (Replay Attack)？",
+            "text": {
+                "zh-TW": "如何防止惡意用戶重複調用你的 API (Replay Attack)?",
+                "en-US": "How to prevent malicious users from replaying your API (Replay Attack)?"
+            },
             "category": "security",
-            "options": ["A. 檢查 User-Agent", "B. 使用 Nonce + Timestamp 簽名", "C. 限制 IP"],
-            "risk_analysis": {"0": "⚠️ 易被偽造", "1": "✅ 標準防禦", "2": "⚠️ 誤殺無辜"},
-            "trap": "測試 API 安全設計"
+            "options": {
+                "zh-TW": ["A. 檢查 User-Agent", "B. 使用 Nonce + Timestamp 簽名", "C. 限制 IP"],
+                "en-US": ["A. Check User-Agent", "B. Use Nonce + Timestamp signature", "C. Limit IP"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "⚠️ 易被偽造", "1": "✅ 標準防禦", "2": "⚠️ 誤殺無辜"},
+                "en-US": {"0": "⚠️ Easy to forge", "1": "✅ Standard defense", "2": "⚠️ False positives"}
+            },
+            "trap": "Testing API security design"
         }
     ],
 
     # 隱私保護 (Privacy)
     "privacy": [
         {
-            "text": "日誌 (Log) 中包含用戶的信用卡號，這可以嗎？",
+            "text": {
+                "zh-TW": "日誌 (Log) 中包含用戶的信用卡號，這可以嗎？",
+                "en-US": "Logs contain user credit card numbers, is this acceptable?"
+            },
             "category": "compliance",
-            "options": ["A. 可以，方便除錯", "B. 不行，必須脫敏 (Masking)", "C. 只有內部人員能看就行"],
-            "risk_analysis": {"0": "💀 嚴重違規 (PCI-DSS)", "1": "✅ 合規做法", "2": "⚠️ 內部威脅風險"},
-            "trap": "測試隱私合規意識"
+            "options": {
+                "zh-TW": ["A. 可以，方便除錯", "B. 不行，必須脫敏 (Masking)", "C. 只有內部人員能看就行"],
+                "en-US": ["A. Yes, convenient for debugging", "B. No, must mask sensitive data", "C. OK if only internal staff can see"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "💀 嚴重違規 (PCI-DSS)", "1": "✅ 合規做法", "2": "⚠️ 內部威脅風險"},
+                "en-US": {"0": "💀 Serious violation (PCI-DSS)", "1": "✅ Compliant practice", "2": "⚠️ Insider threat risk"}
+            },
+            "trap": "Testing privacy compliance awareness"
         },
         {
-            "text": "歐盟用戶要求刪除所有數據 (GDPR)，但備份裡還有，怎麼辦？",
+            "text": {
+                "zh-TW": "歐盟用戶要求刪除所有數據 (GDPR)，但備份裡還有，怎麼辦？",
+                "en-US": "EU user requests data deletion (GDPR), but backups still have it, what to do?"
+            },
             "category": "compliance",
-            "options": ["A. 不用管備份", "B. 標記為已刪除，恢復時過濾", "C. 銷毀所有備份"],
-            "risk_analysis": {"0": "⚠️ 法律風險", "1": "✅ 可行方案", "2": "⚠️ 不切實際"},
-            "trap": "測試 GDPR 合規處理"
+            "options": {
+                "zh-TW": ["A. 不用管備份", "B. 標記為已刪除，恢復時過濾", "C. 銷毀所有備份"],
+                "en-US": ["A. Ignore backups", "B. Mark as deleted, filter on restore", "C. Destroy all backups"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "⚠️ 法律風險", "1": "✅ 可行方案", "2": "⚠️ 不切實際"},
+                "en-US": {"0": "⚠️ Legal risk", "1": "✅ Feasible solution", "2": "⚠️ Impractical"}
+            },
+            "trap": "Testing GDPR compliance handling"
         }
     ],
 
     # 聊天/通訊場景 (Chat/Messaging)
     "chat": [
         {
-            "text": "如果用戶離線時收到100條訊息，重新上線後如何同步？",
+            "text": {
+                "zh-TW": "如果用戶離線時收到100條訊息，重新上線後如何同步?",
+                "en-US": "If user receives 100 messages while offline, how to sync when back online?"
+            },
             "category": "performance",
-            "options": ["A. 一次性推送所有訊息", "B. 分批推送 (Pagination)", "C. 只顯示最後一條"],
-            "risk_analysis": {"0": "⚠️ 卡頓/流量爆炸", "1": "✅ 標準做法", "2": "⚠️ 信息丟失"},
-            "trap": "測試即時通訊同步機制"
+            "options": {
+                "zh-TW": ["A. 一次性推送所有訊息", "B. 分批推送 (Pagination)", "C. 只顯示最後一條"],
+                "en-US": ["A. Push all messages at once", "B. Batch push (Pagination)", "C. Show only last message"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "⚠️ 卡頓/流量爆炸", "1": "✅ 標準做法", "2": "⚠️ 信息丟失"},
+                "en-US": {"0": "⚠️ Lag/traffic explosion", "1": "✅ Standard practice", "2": "⚠️ Message loss"}
+            },
+            "trap": "Testing real-time messaging sync mechanism"
         },
         {
-            "text": "訊息發送後，對方未讀，發送方刪除了訊息，對方還能看到嗎？",
+            "text": {
+                "zh-TW": "訊息發送後，對方未讀，發送方刪除了訊息，對方還能看到嗎?",
+                "en-US": "Message sent but unread, sender deletes it, can receiver still see it?"
+            },
             "category": "consistency",
-            "options": ["A. 能看到 (雙向刪除需特殊處理)", "B. 不能看到 (物理刪除)", "C. 看運氣"],
-            "risk_analysis": {"0": "✅ 隱私保護挑戰", "1": "⚠️ 數據找回困難", "2": "⚠️ 不確定性"},
-            "trap": "測試消息撤回/刪除邏輯"
+            "options": {
+                "zh-TW": ["A. 能看到 (雙向刪除需特殊處理)", "B. 不能看到 (物理刪除)", "C. 看運氣"],
+                "en-US": ["A. Can see (two-way delete needs special handling)", "B. Cannot see (physical delete)", "C. Depends on luck"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "✅ 隱私保護挑戰", "1": "⚠️ 數據找回困難", "2": "⚠️ 不確定性"},
+                "en-US": {"0": "✅ Privacy protection challenge", "1": "⚠️ Data recovery difficult", "2": "⚠️ Uncertainty"}
+            },
+            "trap": "Testing message recall/delete logic"
         }
     ],
 
     # 預約/排程場景 (Booking)
     "booking": [
         {
-            "text": "兩個用戶同時預約同一時段，系統如何避免衝突？",
+            "text": {
+                "zh-TW": "兩個用戶同時預約同一時段，系統如何避免衝突？",
+                "en-US": "Two users book the same time slot simultaneously, how to avoid conflict?"
+            },
             "category": "concurrency",
-            "options": ["A. 先到先得 (Database Constraint)", "B. 候補機制", "C. 人工協調"],
-            "risk_analysis": {"0": "✅ 強一致性", "1": "⚠️ 用戶體驗", "2": "⚠️ 運營成本"},
-            "trap": "測試資源爭用處理"
+            "options": {
+                "zh-TW": ["A. 先到先得 (Database Constraint)", "B. 候補機制", "C. 人工協調"],
+                "en-US": ["A. First come first served (Database Constraint)", "B. Waitlist mechanism", "C. Manual coordination"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "✅ 強一致性", "1": "⚠️ 用戶體驗", "2": "⚠️ 運營成本"},
+                "en-US": {"0": "✅ Strong consistency", "1": "⚠️ User experience", "2": "⚠️ Operational cost"}
+            },
+            "trap": "Testing resource contention handling"
         }
     ],
 
@@ -265,18 +373,36 @@ QUESTION_LIBRARY: Dict[str, List[Dict[str, Any]]] = {
     # 前端安全 (Frontend Security)
     "frontend": [
         {
-            "text": "用戶在評論區輸入了 `<script>alert(1)</script>`，會發生什麼？",
+            "text": {
+                "zh-TW": "用戶在評論區輸入了 `<script>alert(1)</script>`，會發生什麼？",
+                "en-US": "User inputs `<script>alert(1)</script>` in comment section, what happens?"
+            },
             "category": "security",
-            "options": ["A. 彈出視窗 (XSS 攻擊成功)", "B. 被轉義顯示為純文本", "C.瀏覽器崩潰"],
-            "risk_analysis": {"0": "💀 嚴重漏洞 (XSS)", "1": "✅ 安全編碼", "2": "⚠️ 錯誤認知"},
-            "trap": "測試 XSS 防禦意識"
+            "options": {
+                "zh-TW": ["A. 彈出視窗 (XSS 攻擊成功)", "B. 被轉義顯示為純文本", "C.瀏覽器崩潰"],
+                "en-US": ["A. Alert pops up (XSS attack succeeded)", "B. Escaped and displayed as plain text", "C. Browser crashes"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "💀 嚴重漏洞 (XSS)", "1": "✅ 安全編碼", "2": "⚠️ 錯誤認知"},
+                "en-US": {"0": "💀 Serious vulnerability (XSS)", "1": "✅ Secure coding", "2": "⚠️ Wrong assumption"}
+            },
+            "trap": "Testing XSS defense awareness"
         },
         {
-            "text": "API Token 應該存在哪裡最安全？",
+            "text": {
+                "zh-TW": "API Token 應該存在哪裡最安全？",
+                "en-US": "Where should API Token be stored most securely?"
+            },
             "category": "security",
-            "options": ["A. LocalStorage", "B. HttpOnly Cookie", "C. JS 變量"],
-            "risk_analysis": {"0": "⚠️ 易受 XSS 攻擊", "1": "✅ 防止 XSS 竊取", "2": "⚠️ page refresh 後丟失"},
-            "trap": "測試前端存儲安全"
+            "options": {
+                "zh-TW": ["A. LocalStorage", "B. HttpOnly Cookie", "C. JS 變量"],
+                "en-US": ["A. LocalStorage", "B. HttpOnly Cookie", "C. JS variable"]
+            },
+            "risk_analysis": {
+                "zh-TW": {"0": "⚠️ 易受 XSS 攻擊", "1": "✅ 防止 XSS 竊取", "2": "⚠️ page refresh 後丟失"},
+                "en-US": {"0": "⚠️ Vulnerable to XSS", "1": "✅ Prevents XSS theft", "2": "⚠️ Lost after page refresh"}
+            },
+            "trap": "Testing frontend storage security"
         }
     ]
 }
