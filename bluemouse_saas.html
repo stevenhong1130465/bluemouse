@@ -918,6 +918,9 @@
                 "validating_structure": "正在確認資料庫結構...",
                 "validating_security": "正在檢查安全性設定...",
                 "success_message": "邏輯看起來很棒！隨時可以開始生成。",
+                "result_success_msg": "邏輯看起來很棒！您的專案已就緒。",
+                "result_files_generated": "已生成 {count} 個核心文件",
+                "result_download_btn": "下載項目 ZIP",
                 "draft_detected": "📝 檢測到未完成的草稿，",
                 "draft_restore": "點擊恢復",
                 "draft_or": "或",
@@ -959,6 +962,9 @@
                 "status_ready": "✨ Ready to Build",
                 "btn_generate": "Start Generation",
                 "result_title": "🎉 Your Project is Ready",
+                "result_success_msg": "Logic looks great! Your project is ready.",
+                "result_files_generated": "Generated {count} core files",
+                "result_download_btn": "Download Project ZIP",
                 "interview_title": "💡 Let's Tune the Logic",
                 "interview_subtitle": "These choices will affect system stability. Which approach do you prefer?",
                 "btn_skip": "Decide Later",
@@ -1558,20 +1564,20 @@
             const fileList = Object.keys(codeData.files || codeData || {});
             const fileCount = fileList.length;
 
-            const successMsg = currentLang === 'zh-TW' ? '邏輯看起來很棒！您的專案已就緒。' : 'Logic looks great! Your project is ready.';
+            const t = translations[currentLang];
             document.getElementById('resultContent').innerHTML = `
             <p style="font-size: 18px; margin-bottom: 20px; color: var(--color-implemented);">
-                ${successMsg}
+                ${t.result_success_msg}
             </p>
                 <p style="font-size: 16px; margin-bottom: 20px;">
-                    ${currentLang === 'zh-TW' ? `已生成 ${fileCount} 個核心文件` : `Generated ${fileCount} core files`}
+                    ${t.result_files_generated.replace('{count}', fileCount)}
                 </p>
                 <div style="font-size: 14px; color: #666; margin-bottom: 24px;">
                     ${fileList.join(', ')}
                 </div>
                 <button onclick="downloadProjectZIP()" 
                     style="padding: 16px 40px; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
-                    📦 ${currentLang === 'zh-TW' ? '下載項目 ZIP' : 'Download Project ZIP'}
+                    📦 ${t.result_download_btn}
                 </button>
         `;
         }
