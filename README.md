@@ -150,14 +150,14 @@ BlueMouse v6.6 has passed rigorous stress tests | BlueMouse v6.6 已通過嚴格
 
 ## 🚀 Quick Start | 快速開始
 
-### Three Steps. That's It. | 三步驟，就這樣。
+### Three Steps. That's It. | 三步驟,就這樣。
 
 ```bash
 # 1. Clone
 git clone https://github.com/peijun1700/bluemouse
 cd bluemouse
 
-# 2. Start
+# 2. Start (在終端機執行 | Run in Terminal)
 ./Start        # Mac/Linux
 Start.bat      # Windows
 
@@ -181,13 +181,6 @@ Don't have Cursor? Open `http://localhost:8001` after running `./Start`.
 
 For manual installation or troubleshooting, see [CURSOR_GUIDE.md](CURSOR_GUIDE.md).  
 手動安裝或疑難排解，請參考 [CURSOR_GUIDE.md](CURSOR_GUIDE.md)。
-python -m pip install -r requirements.txt
-python start_v6.py
-```
-
-The server will start on `http://localhost:8001` and your browser will open automatically.
-
-伺服器將在 `http://localhost:8001` 啟動，瀏覽器會自動打開。
 
 ---
 
@@ -339,10 +332,20 @@ taskkill /PID <PID> /F
 ```
 
 ### Q3: CRITICAL STOP 沒有觸發？
-**A:** 確認以下條件：
-- 您的指令包含 `DROP TABLE` 或 `DELETE FROM` 等關鍵字
+**A:** CRITICAL STOP 功能已實現!確認以下條件:
+- 您的需求包含 `DROP TABLE` 或 `DELETE FROM` 等關鍵字
 - BlueMouse 服務正在運行 (檢查 http://localhost:8001)
-- Cursor 已正確配置 MCP
+- 在蘇格拉底問題階段會自動觸發
+
+**測試方法:**
+```bash
+# 在需求輸入框輸入:
+"幫我 drop table users"
+
+# 系統會立即顯示:
+⚠️ CRITICAL STOP: You are executing DROP without Environment Check. 
+Is this PROD?
+```
 
 ### Q4: 需要 API Key 嗎？
 **A:** **不需要！** BlueMouse 可以完全本地運行。
