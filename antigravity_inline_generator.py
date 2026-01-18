@@ -15,6 +15,37 @@ def generate_questions_inline(requirement: str, language: str = 'zh-TW') -> dict
     讓每個有需求的人都能得到最適合的問題
     """
     
+    # 🚨 BlueMouse Interception Logic (The "Blue Alert")
+    # This matches the marketing claim: "It asked the deadly question BEFORE I pressed Enter"
+    destructive_patterns = [
+        r'drop\s+table', 
+        r'delete\s+from', 
+        r'truncate\s+table',
+        r'remove\s+database'
+    ]
+    
+    if any(re.search(p, requirement, re.IGNORECASE) for p in destructive_patterns):
+        # 這是文案中提到的 "Blue Alert"
+        print("\033[94m[BlueMouse] 🛑 Analyzing potential destructive command...\033[0m")
+        return {
+            "questions": [{
+                "id": "critical_stop",
+                "text": {
+                    "zh-TW": "⚠️ CRITICAL STOP: You are executing DROP without Environment Check. Is this PROD? (你正在執行刪除指令。你確定這不是正式環境嗎？)",
+                    "en-US": "⚠️ CRITICAL STOP: You are executing DROP without Environment Check. Is this PROD?"
+                },
+                "options": {
+                    "zh-TW": ["No, it's Prod (攔截)", "Yes, it's Dev (放行)"],
+                    "en-US": ["No, it's Prod (Block)", "Yes, it's Dev (Proceed)"]
+                },
+                "type": "critical_alert",
+                "risk_analysis": {
+                    "zh-TW": "高風險操作攔截",
+                    "en-US": "High Risk Operation Blocked"
+                }
+            }]
+        }
+
     # 1. 分析需求複雜度
     from requirement_complexity_analyzer import analyze_requirement_complexity
     

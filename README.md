@@ -6,6 +6,7 @@
 
 
 [![Glama | bluemouse](https://glama.ai/mcp/servers/@peijun1700/bluemouse/badge)](https://glama.ai/mcp/servers/@peijun1700/bluemouse)
+[![Smithery | bluemouse](https://smithery.ai/badge/peijun1700/bluemouse)](https://smithery.ai/server/peijun1700/Bluemouse)
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-blue?style=for-the-badge)](docs/reports/STATUS_REPORT_v6.6.md)
 [![License](https://img.shields.io/badge/License-AGPLv3-red?style=for-the-badge)](LICENSE)
 
@@ -142,12 +143,12 @@ BlueMouse v6.6 has passed rigorous stress tests | BlueMouse v6.6 已通過嚴格
 #### Option 1: One-Click Start | 選項 1：一鍵啟動 (Recommended | 推薦)
 **Mac/Linux:**
 ```bash
-./start_bluemouse.command
+./Start
 ```
 
 **Windows:**
 ```bash
-start_bluemouse.bat
+Start
 ```
 
 #### Option 2: Manual Start | 選項 2：手動啟動
